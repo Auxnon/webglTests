@@ -2,7 +2,7 @@ let gl;
 let program;
 let time=0;
 let lastTime=Date.now();
-
+let pos=[0,1,0];
 function init() {
     console.log('hi');
     let canvas = document.querySelector("canvas");
@@ -34,6 +34,8 @@ function init() {
     gl.uniform1f(program.timeUniform, 1.); 
     program.resolutionUniform = gl.getUniformLocation(program, "resolution");
     gl.uniform2f(program.resolutionUniform,window.innerWidth,window.innerHeight);
+    program.posUniform = gl.getUniformLocation(program, "ipos");
+    gl.uniform3f(program.posUniform,0,1,0);
 
     // Bind the position buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -47,6 +49,7 @@ function init() {
         positionAttributeLocation, size, type, normalize, stride, offset);
 
     animate();
+    window.addEventListener('mousemove',mousemove);
     //let program = gl.createProgramFromSources(gl, [vs, fs]);
 }
 init();
@@ -57,10 +60,15 @@ function animate() {
     let delta=t-lastTime;
     lastTime=t;
     time+=delta/1000.; //DEV add delta
-    console.log(time) 
+    
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
     gl.uniform1f(program.timeUniform, Math.floor(time*100)/100.); 
+    gl.uniform3f(program.posUniform,pos[0],pos[1],pos[2]);
     requestAnimationFrame(animate);
+}
+function mousemove(ev){
+    pos[0]=((ev.clientX/window.innerWidth)-0.5)*3.;
+    pos[1]=((ev.clientY/window.innerHeight)-0.5)*3.;
 }
 
 function compileShader(gl, shaderSource, shaderType) {
